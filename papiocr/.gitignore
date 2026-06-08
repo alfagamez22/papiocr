@@ -1,0 +1,15 @@
+.venv/
+models/
+output/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.env
+.idea/
+.vscode/
+build/
+dist/
+*.log
+.pytest_cache/
+.DS_Store

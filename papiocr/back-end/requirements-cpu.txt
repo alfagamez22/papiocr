@@ -1,0 +1,29 @@
+# CPU-friendly pin set for papiocr on Windows.
+#
+# The PyTorch-built +cpu index (download.pytorch.org/whl/cpu) ships
+# shm.dll which fails to load on Win10/11 with "WinError 127: The
+# specified procedure could not be found" when CUDA 13+ is on PATH, so
+# we use the default PyPI wheel (CUDA-bundled but CPU-only on hardware
+# without a GPU). The env shim in src/_env.py additionally strips CUDA
+# v13 from PATH and prepends the venv's torch lib dir to guarantee
+# clean DLL loading.
+#
+# transformers 4.46.x is the last release that ships a "translation"
+# pipeline task (5.x removed it). NLLB-200 still works fine on 4.46.
+#
+# albumentations<1.4 avoids the .pytorch submodule that imports torch
+# during PaddleOCR's import chain, which triggers the shm.dll problem.
+paddleocr>=2.7,<3.0
+paddlepaddle>=2.6,<3.0
+opencv-python>=4.8
+numpy>=1.24,<2.0
+Pillow>=10.0
+transformers==4.46.0
+sentencepiece>=0.2
+sacremoses>=0.1
+huggingface_hub>=0.23
+tqdm>=4.66
+python-dotenv>=1.0
+torch==2.7.0
+torchaudio==2.7.0
+albumentations<1.4

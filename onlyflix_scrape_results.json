@@ -1,0 +1,222 @@
+{
+  "scrape_timestamp": "2026-06-03T19:00:00Z",
+  "target_url": "https://onlyflix.to",
+  "site_analysis": {
+    "platform": "WordPress 7.0",
+    "theme": "Dark",
+    "custom_plugins": [
+      "onlyflix-title-popularity (popularity widget)",
+      "onlyflix-tvapi-featured (featured movies/TV carousel)"
+    ],
+    "database_references": {
+      "primary": "TMDB (The Movie Database)",
+      "secondary": "IMDB (used for video embedding URLs)",
+      "evidence": {
+        "tmdb_post_ids": "Post IDs match TMDB IDs (e.g., postid=1545431 = TMDB 1545431)",
+        "tmdb_poster_pattern": "https://onlyflix.to/wp-content/uploads/posters/{tmdb_id}_small.jpg",
+        "tmdb_backdrop_pattern": "https://onlyflix.to/wp-content/uploads/onlyflix-backdrops/{tmdb_id}_desktop.jpg",
+        "imdb_ids": "ttXXXXX format used in embedding URLs (e.g., tt26657236)"
+      }
+    },
+    "internal_api": {
+      "ajax_endpoint": "https://onlyflix.to/wp-admin/admin-ajax.php",
+      "ajax_params": {
+        "nonce_param": "data-player-nonce",
+        "post_id_param": "data-player-post-id",
+        "content_type_param": "data-player-content-type"
+      },
+      "rest_api": "https://onlyflix.to/wp-json/",
+      "oembed": "https://onlyflix.to/wp-json/oembed/1.0/embed?url={url}"
+    },
+    "integrated_services": {
+      "download": "https://dlhub.cc/search (POST with movie title)",
+      "trailer": "YouTube (e.g., 0HjdiohVOik)",
+      "ads": "qw.suevicnettie.com",
+      "analytics": "whos.amung.us",
+      "cloudflare": "Present on vidapi.xyz",
+      "anti_devtool": "disable-devtool CDN script on vidapi.xyz"
+    }
+  },
+  "layer_1_onlyflix_public_servers": {
+    "description": "4 servers embedded as JSON in the <script class='oftv-featured-player-json'> on every movie page",
+    "servers": [
+      {
+        "number": 1,
+        "name": "Server 1",
+        "url_pattern": "https://vidapi.xyz/embed/movie/{imdb_id}",
+        "example": "https://vidapi.xyz/embed/movie/tt26657236"
+      },
+      {
+        "number": 2,
+        "name": "Server 2",
+        "url_pattern": "https://vidfast.pro/movie/{imdb_id}",
+        "example": "https://vidfast.pro/movie/tt26657236"
+      },
+      {
+        "number": 3,
+        "name": "Server 3",
+        "url_pattern": "https://multiembed.mov/?video_id={imdb_id}",
+        "example": "https://multiembed.mov/?video_id=tt26657236"
+      },
+      {
+        "number": 4,
+        "name": "Server 4",
+        "url_pattern": "https://moviesapi.to/movie/{tmdb_id}",
+        "example": "https://moviesapi.to/movie/1083381"
+      }
+    ]
+  },
+  "layer_2_vidapi_internal_servers": {
+    "description": "11 sub-servers exposed inside the vidapi.xyz iframe player. These are the actual streaming backends.",
+    "server_details": [
+      {
+        "label": "Server A",
+        "name": "Server A - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/swish?id={hash}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/swish?id=k3ag7kxggap3&ref=mdrct"
+      },
+      {
+        "label": "Server N",
+        "name": "Server N - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/vnest?tmdb={tmdb_id}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/vnest?tmdb=1083381&ref=mdrct"
+      },
+      {
+        "label": "Server X",
+        "name": "Server X - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/xps?imdb={imdb_id}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/xps?imdb=tt26657236&ref=mdrct"
+      },
+      {
+        "label": "Server K",
+        "name": "Server K - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/vkng?tmdb={tmdb_id}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/vkng?tmdb=1083381&ref=mdrct"
+      },
+      {
+        "label": "Server C",
+        "name": "Server C - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/vsrcc?imdb={imdb_id}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/vsrcc?imdb=tt26657236&ref=mdrct"
+      },
+      {
+        "label": "Server B",
+        "name": "Server B - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://embedmaster.link/movie/{imdb_id}",
+        "example": "https://embedmaster.link/movie/tt26657236"
+      },
+      {
+        "label": "Server S",
+        "name": "Server S - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/vsrc?imdb={imdb_id}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/vsrc?imdb=tt26657236&ref=mdrct"
+      },
+      {
+        "label": "Server P",
+        "name": "Server P - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://stream.vidapi.xyz/vpls?tmdb={tmdb_id}&ref=mdrct",
+        "example": "https://stream.vidapi.xyz/vpls?tmdb=1083381&ref=mdrct"
+      },
+      {
+        "label": "Server Y",
+        "name": "Server Y - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://player.videasy.net/movie/{tmdb_id}?autoplay=true",
+        "example": "https://player.videasy.net/movie/1083381?autoplay=true"
+      },
+      {
+        "label": "Server F",
+        "name": "Server F - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://vidfast.pro/movie/{tmdb_id}?autoplay=true",
+        "example": "https://vidfast.pro/movie/1083381?autoplay=true"
+      },
+      {
+        "label": "Server M",
+        "name": "Server M - Streaming Source",
+        "flag": "US",
+        "url_pattern": "https://multiembed.mov/?video_id={tmdb_id}&tmdb=1",
+        "example": "https://multiembed.mov/?video_id=1083381&tmdb=1"
+      }
+    ]
+  },
+  "player_workflow": {
+    "step_1": "User clicks Play button on onlyflix.to",
+    "step_2": "AJAX POST to wp-admin/admin-ajax.php with: action (likely of_ajax), nonce, post_id, content_type",
+    "step_3": "Player iframe loads one of the 4 public server URLs (e.g., vidapi.xyz)",
+    "step_4": "VidAPI.xyz shows poster backdrop + play overlay button",
+    "step_5": "User clicks play overlay → iframe.src is set to data-src (actual stream URL)",
+    "step_6": "Server panel appears showing 11 sub-servers to choose from",
+    "step_7": "Clicking another sub-server swaps data-src and reloads iframe"
+  },
+  "sample_scraped_movies": [
+    {
+      "title": "Backrooms",
+      "url": "https://onlyflix.to/backrooms/",
+      "imdb_id": "tt26657236",
+      "tmdb_id": "1545431",
+      "year": "2026",
+      "genres": ["Horror", "Mystery", "Science Fiction"],
+      "poster": "https://onlyflix.to/wp-content/uploads/posters/1545431_medium.jpg?t=1780090579",
+      "backdrop": "https://onlyflix.to/wp-content/uploads/onlyflix-backdrops/1545431_desktop.jpg?t=1780090652",
+      "player_servers": [
+        {"number": 1, "name": "Server 1", "url": "https://vidapi.xyz/embed/movie/tt26657236"},
+        {"number": 2, "name": "Server 2", "url": "https://vidfast.pro/movie/tt26657236"},
+        {"number": 3, "name": "Server 3", "url": "https://multiembed.mov/?video_id=tt26657236"},
+        {"number": 4, "name": "Server 4", "url": "https://moviesapi.to/movie/1083381"}
+      ]
+    },
+    {
+      "title": "Obsession",
+      "url": "https://onlyflix.to/obsession/",
+      "imdb_id": "tt37287335",
+      "tmdb_id": "1545219",
+      "year": "2025",
+      "genres": ["Horror", "Thriller"],
+      "rating": "8.2",
+      "poster": "https://onlyflix.to/wp-content/uploads/posters/1545219_medium.jpg?t=1778847420",
+      "backdrop": "https://onlyflix.to/wp-content/uploads/onlyflix-backdrops/1545219_desktop.jpg?t=1779450797",
+      "player_servers": [
+        {"number": 1, "name": "Server 1", "url": "https://vidapi.xyz/embed/movie/tt37287335"},
+        {"number": 2, "name": "Server 2", "url": "https://vidfast.pro/movie/tt37287335"},
+        {"number": 3, "name": "Server 3", "url": "https://multiembed.mov/?video_id=tt37287335"},
+        {"number": 4, "name": "Server 4", "url": "https://moviesapi.to/movie/1339713"}
+      ]
+    },
+    {
+      "title": "Project Hail Mary",
+      "url": "https://onlyflix.to/project-hail-mary/",
+      "imdb_id": "tt12042730",
+      "tmdb_id": "1487293",
+      "year": "2026",
+      "genres": ["Adventure", "Mystery", "Science Fiction"],
+      "rating": "8.3",
+      "poster": "https://onlyflix.to/wp-content/uploads/posters/1487293_medium.jpg?t=1778240562",
+      "backdrop": "https://onlyflix.to/wp-content/uploads/onlyflix-backdrops/1487293_desktop.jpg?t=1779451021",
+      "player_servers": [
+        {"number": 1, "name": "Server 1", "url": "https://vidapi.xyz/embed/movie/tt12042730"},
+        {"number": 2, "name": "Server 2", "url": "https://vidfast.pro/movie/tt12042730"},
+        {"number": 3, "name": "Server 3", "url": "https://multiembed.mov/?video_id=tt12042730"},
+        {"number": 4, "name": "Server 4", "url": "https://moviesapi.to/movie/687163"}
+      ]
+    }
+  ],
+  "navigation_structure": {
+    "homepage": "https://onlyflix.to/",
+    "movies": "https://onlyflix.to/movies/",
+    "series": "https://onlyflix.to/series/",
+    "genres": "https://onlyflix.to/genres/",
+    "genre_base": "https://onlyflix.to/genre/{slug}/",
+    "search": "https://onlyflix.to/?s={query}",
+    "single_movie": "https://onlyflix.to/{slug}/",
+    "trailer_endpoint": "YouTube embed (modal)"
+  }
+}
