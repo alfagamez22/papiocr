@@ -62,3 +62,121 @@ body {
   font-family: var(--font-sans, Arial, Helvetica, sans-serif);
   -webkit-font-smoothing: antialiased;
 }
+
+.translation-loader::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(90deg, color-mix(in oklch, var(--accent) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(180deg, color-mix(in oklch, var(--accent) 10%, transparent) 1px, transparent 1px);
+  background-size: 44px 44px;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.translation-scan-line {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  top: 8%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  box-shadow: 0 0 18px color-mix(in oklch, var(--accent) 55%, transparent);
+  animation: translation-scan 1.8s ease-in-out infinite;
+}
+
+.translation-detection {
+  position: absolute;
+  border: 1px solid color-mix(in oklch, var(--accent) 72%, white);
+  border-radius: 6px;
+  box-shadow: 0 0 16px color-mix(in oklch, var(--accent) 30%, transparent);
+  opacity: 0;
+  animation: translation-detection-pulse 2.4s ease-in-out infinite;
+}
+
+.translation-detection-a {
+  left: 18%;
+  top: 24%;
+  width: 34%;
+  height: 9%;
+}
+
+.translation-detection-b {
+  right: 15%;
+  top: 43%;
+  width: 28%;
+  height: 8%;
+  animation-delay: 0.35s;
+}
+
+.translation-detection-c {
+  left: 25%;
+  bottom: 29%;
+  width: 46%;
+  height: 7%;
+  animation-delay: 0.7s;
+}
+
+.translation-progress-track {
+  height: 6px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--bg-input);
+}
+
+.translation-progress-fill {
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  animation: translation-progress 1.15s ease-in-out infinite;
+}
+
+@keyframes translation-scan {
+  0% {
+    top: 8%;
+    opacity: 0;
+  }
+  12%, 88% {
+    opacity: 1;
+  }
+  100% {
+    top: 82%;
+    opacity: 0;
+  }
+}
+
+@keyframes translation-detection-pulse {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  35%, 72% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes translation-progress {
+  0% {
+    transform: translateX(-105%);
+  }
+  100% {
+    transform: translateX(245%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .translation-scan-line,
+  .translation-detection,
+  .translation-progress-fill {
+    animation: none;
+  }
+
+  .translation-scan-line,
+  .translation-detection {
+    opacity: 0.75;
+  }
+}

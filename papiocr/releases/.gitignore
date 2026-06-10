@@ -1,0 +1,7 @@
+*
+!*/
+!.gitignore
+!windows/.gitkeep
+!mac/.gitkeep
+!android/.gitkeep
+!iphone/.gitkeep

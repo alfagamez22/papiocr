@@ -4,13 +4,44 @@
   "private": true,
   "scripts": {
     "dev": "npm run compile:electron && concurrently -n next,electron \"next dev\" \"wait-on http://localhost:3000 && cross-env NODE_ENV=development electron .\"",
-    "build": "next build",
+    "build": "npm run build:windows",
+    "build:web": "next build",
+    "build:windows": "npm run build:web && npm run compile:electron && electron-builder --win",
     "compile:electron": "tsc -p tsconfig.electron.json",
-    "dist": "npm run build && npm run compile:electron && electron-builder",
+    "dist": "npm run build:windows",
     "start": "electron .",
     "lint": "eslint"
   },
   "main": "electron-dist/main.js",
+  "build": {
+    "appId": "com.papiocr.desktop",
+    "productName": "papiocr",
+    "asar": true,
+    "directories": {
+      "output": "../releases/windows"
+    },
+    "files": [
+      "out/**/*",
+      "electron-dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-${version}-windows-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "dependencies": {
     "next": "16.2.7",
     "react": "19.2.4",

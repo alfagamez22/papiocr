@@ -65,7 +65,7 @@ export default function LanguagePicker({ value, onChange, label }: Props) {
               onClick={() => { onChange(code); setOpen(false); setSearch(""); }}
               className={`w-full text-left px-2 py-1.5 rounded-[var(--radius-sm)] text-sm transition-colors cursor-pointer flex items-center justify-between ${
                 value === code
-                  ? "bg-[var(--accent)] text-[var(--bg)] font-medium"
+                  ? "bg-[var(--accent)] text-white font-medium"
                   : "text-[var(--text)] hover:bg-[var(--bg-hover)]"
               }`}
             >

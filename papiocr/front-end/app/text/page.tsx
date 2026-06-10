@@ -19,8 +19,9 @@ export default function TextPage() {
     try {
       const res = await translateText(input, src, tgt);
       setOutput(res.translated);
-    } catch (e: any) {
-      setOutput(`Error: ${e.message}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Unknown error";
+      setOutput(`Error: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -40,7 +41,7 @@ export default function TextPage() {
         <button
           onClick={handleTranslate}
           disabled={loading || !input.trim()}
-          className="ml-auto px-4 py-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] text-[var(--bg)] text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
+          className="ml-auto px-4 py-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
         >
           {loading ? "..." : "Translate"}
         </button>

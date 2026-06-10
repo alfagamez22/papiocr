@@ -1,6 +1,7 @@
 """Translation via Hugging Face Transformers (NLLB / opus-mt)."""
 from __future__ import annotations
 
+import re
 from typing import Sequence
 
 from .config import (
@@ -11,6 +12,65 @@ from .config import (
     TRANSLATION_MODEL,
 )
 from .utils import LOGGER
+
+
+_NUMERIC_OR_SYMBOL_RE = re.compile(
+    r"^[\s\d.,:;+/\\%#@()（）\[\]【】{}<>·\-–—_!?'\"|&=~]+$"
+)
+_REPEATED_COMPACT_WORD_RE = re.compile(r"([A-Za-z]{2,24})(?:\1){5,}")
+_NUMERIC_OR_SYMBOL_RE = re.compile(
+    r"^[\s\d.,:;+/\\%#@()\[\]{}<>@._!?'\"|&=~*-]+$"
+)
+_SOCIAL_METADATA_RE = re.compile(
+    r"^@.+(?:\d+\s*(?:hours?|days?|hrs?|mins?)\s*ago|\d+\s*[hdm])?$",
+    re.I,
+)
+
+
+def should_preserve_source_text(text: str) -> bool:
+    """Return True for OCR fragments that should not be machine translated."""
+    value = text.strip()
+    if not value:
+        return True
+    if value.startswith("@") or _SOCIAL_METADATA_RE.search(value):
+        return True
+    if _NUMERIC_OR_SYMBOL_RE.fullmatch(value):
+        return True
+    return False
+
+
+def looks_like_repetitive_translation(text: str) -> bool:
+    """Detect model hallucinations such as JoeJoeJoeJoe..."""
+    value = text.strip()
+    if len(value) < 48:
+        return False
+
+    compact = re.sub(r"[^A-Za-z]+", "", value)
+    if len(compact) >= 36 and _REPEATED_COMPACT_WORD_RE.search(compact):
+        return True
+
+    words = re.findall(r"[A-Za-z]{2,24}", value.lower())
+    if len(words) >= 10:
+        most_common = max(words.count(word) for word in set(words))
+        if most_common / len(words) >= 0.65:
+            return True
+        unique_short = {word for word in words if len(word) <= 4}
+        if len(unique_short) <= 2 and len(words) >= 16:
+            return True
+
+    return False
+
+
+def postprocess_translation(source: str, translated: str) -> str:
+    """Keep renderer-safe output when a model produces unusable text."""
+    source = source.strip()
+    translated = translated.strip()
+    if should_preserve_source_text(source):
+        return source
+    if looks_like_repetitive_translation(translated):
+        LOGGER.warning("Dropping repetitive translation for OCR text: %r", source)
+        return source
+    return translated
 
 
 # ---------------------------------------------------------------------------
@@ -76,6 +136,8 @@ class HFTranslator:
     def translate(self, text: str) -> str:
         if not text or not text.strip():
             return ""
+        if should_preserve_source_text(text):
+            return text.strip()
         if self.is_nllb:
             out = self.pipeline(
                 text,
@@ -87,20 +149,36 @@ class HFTranslator:
             # opus-mt takes the source lang implicitly via the model choice;
             # we still call with no extra kwargs.
             out = self.pipeline(text, max_length=512)
-        return out[0]["translation_text"].strip()
+        return postprocess_translation(text, out[0]["translation_text"])
 
     def translate_batch(self, texts: Sequence[str]) -> list[str]:
-        cleaned = [t if t and t.strip() else " " for t in texts]
+        results: list[str | None] = [None] * len(texts)
+        pending: list[tuple[int, str]] = []
+
+        for index, text in enumerate(texts):
+            if not text or not text.strip():
+                results[index] = ""
+            elif should_preserve_source_text(text):
+                results[index] = text.strip()
+            else:
+                pending.append((index, text))
+
+        if not pending:
+            return [r or "" for r in results]
+
+        cleaned = [text for _, text in pending]
         if self.is_nllb:
             outs = self.pipeline(
-                list(cleaned),
+                cleaned,
                 src_lang=self.source_lang,
                 tgt_lang=self.target_lang,
                 max_length=512,
             )
         else:
-            outs = self.pipeline(list(cleaned), max_length=512)
-        return [o["translation_text"].strip() for o in outs]
+            outs = self.pipeline(cleaned, max_length=512)
 
+        for (index, source), output in zip(pending, outs):
+            results[index] = postprocess_translation(source, output["translation_text"])
 
+        return [r or "" for r in results]
 

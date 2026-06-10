@@ -27,8 +27,9 @@ export default function DocumentsPage() {
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
       linkRef.current?.click();
-    } catch (e: any) {
-      alert(`Error: ${e.message}`);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : "Unknown error";
+      alert(`Error: ${message}`);
     } finally {
       setLoading(false);
     }
@@ -51,7 +52,7 @@ export default function DocumentsPage() {
           <button
             onClick={handleTranslate}
             disabled={loading}
-            className="ml-auto px-4 py-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] text-[var(--bg)] text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
+            className="ml-auto px-4 py-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] text-white text-sm font-medium hover:bg-[var(--accent-hover)] disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? "..." : "Translate"}
           </button>
@@ -69,7 +70,7 @@ export default function DocumentsPage() {
             Remove
           </button>
           {resultUrl && (
-            <a ref={linkRef} href={resultUrl} download={`translated.${ext}`} className="px-4 py-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] text-[var(--bg)] text-sm font-medium no-underline hover:bg-[var(--accent-hover)] transition-colors">
+            <a ref={linkRef} href={resultUrl} download={`translated.${ext}`} className="px-4 py-1.5 rounded-[var(--radius-sm)] bg-[var(--accent)] text-white text-sm font-medium no-underline hover:bg-[var(--accent-hover)] transition-colors">
               Download translated file
             </a>
           )}

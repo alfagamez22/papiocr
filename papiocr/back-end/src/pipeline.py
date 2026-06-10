@@ -9,12 +9,19 @@ from typing import Sequence
 import cv2
 import numpy as np
 
-from .config import OUTPUT_DIR
+from .config import (
+    OUTPUT_DIR,
+    RENDER_MAX_TEXT_TO_BOX_RATIO,
+    RENDER_MIN_BOX_AREA,
+    RENDER_MIN_BOX_HEIGHT,
+    RENDER_MIN_BOX_WIDTH,
+    RENDER_MIN_FONT,
+)
 from .ocr import Detection, OCREngine
 from .remover import RemovalMode, remove_text
 from .renderer import RenderItem, draw_translated
-from .translator import HFTranslator
-from .utils import LOGGER, ensure_dir, load_image_bgr
+from .translator import HFTranslator, looks_like_repetitive_translation, should_preserve_source_text
+from .utils import LOGGER, box_to_rect, ensure_dir, load_image_bgr
 
 
 @dataclass
@@ -79,6 +86,36 @@ class ImageTranslationPipeline:
         with path.open("w", encoding="utf-8") as fh:
             json.dump([i.as_dict() for i in items], fh, ensure_ascii=False, indent=2)
 
+    @staticmethod
+    def _is_renderable_item(item: TranslatedItem, image_shape: tuple[int, ...]) -> bool:
+        text = item.translated_text.strip()
+        if not text:
+            return False
+        if looks_like_repetitive_translation(text):
+            return False
+        if should_preserve_source_text(item.original_text):
+            return False
+
+        x, y, w, h = box_to_rect(item.box)
+        image_h, image_w = image_shape[:2]
+        if x >= image_w or y >= image_h:
+            return False
+        if w < RENDER_MIN_BOX_WIDTH or h < RENDER_MIN_BOX_HEIGHT:
+            return False
+        if w * h < RENDER_MIN_BOX_AREA:
+            return False
+
+        capacity = max(12, int((w * h * RENDER_MAX_TEXT_TO_BOX_RATIO) / (RENDER_MIN_FONT * 5.2)))
+        if len(text) > capacity:
+            LOGGER.warning(
+                "Skipping overlong translation (%d chars, capacity %d): %r",
+                len(text),
+                capacity,
+                item.original_text,
+            )
+            return False
+        return True
+
     # ------------------------------------------------------------- public
     def run(
         self,
@@ -121,7 +158,14 @@ class ImageTranslationPipeline:
         if corrections is not None:
             self._apply_corrections(translated_items, Path(corrections))
 
-        boxes = [list(t.box) for t in translated_items]
+        renderable_items = [
+            t for t in translated_items if self._is_renderable_item(t, image.shape)
+        ]
+        skipped = len(translated_items) - len(renderable_items)
+        if skipped:
+            LOGGER.info("Skipped %d OCR region(s) that were too small or noisy to render.", skipped)
+
+        boxes = [list(t.box) for t in renderable_items]
         cleaned, _mask = remove_text(image, boxes, mode=self.removal_mode)  # type: ignore[arg-type]
 
         render_items = [
@@ -131,7 +175,7 @@ class ImageTranslationPipeline:
                 original_text=t.original_text,
                 confidence=t.confidence,
             )
-            for t in translated_items
+            for t in renderable_items
         ]
 
         if no_render:
@@ -149,6 +193,7 @@ class ImageTranslationPipeline:
             "corrections_path": str(corrections_path),
             "items": [t.as_dict() for t in translated_items],
             "num_items": len(translated_items),
+            "num_rendered": len(renderable_items),
         }
 
     # ------------------------------------------------------------- static

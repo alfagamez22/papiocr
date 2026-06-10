@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   accept: string;
@@ -29,25 +29,29 @@ export default function DropZone({ accept, maxSizeMB, onFile, label, formats }: 
     onFile(f);
   }
 
-  const handlePaste = useCallback((e: ClipboardEvent) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of items) {
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        if (file) {
-          e.preventDefault();
-          validate(file);
-          break;
+  useEffect(() => {
+    function handlePaste(e: ClipboardEvent) {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      for (const item of items) {
+        if (item.kind === "file") {
+          const file = item.getAsFile();
+          if (file) {
+            e.preventDefault();
+            if (file.size > maxSizeMB * 1024 * 1024) {
+              alert(`File too large (max ${maxSizeMB} MB)`);
+              return;
+            }
+            onFile(file);
+            break;
+          }
         }
       }
     }
-  }, [maxSizeMB, onFile]);
 
-  useEffect(() => {
     document.addEventListener("paste", handlePaste);
     return () => document.removeEventListener("paste", handlePaste);
-  }, [handlePaste]);
+  }, [maxSizeMB, onFile]);
 
   return (
     <div

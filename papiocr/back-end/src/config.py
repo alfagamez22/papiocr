@@ -25,7 +25,7 @@ for _p in (HF_MODEL_DIR, GGUF_MODEL_DIR, PADDLEOCR_MODEL_DIR):
 #   "japan", "korean", "french", "german", "ru", "ar", ...
 OCR_LANG = "ch"
 OCR_USE_ANGLE_CLS = True
-MIN_CONFIDENCE = 0.0  # keep everything by default; user can filter later
+MIN_CONFIDENCE = 0.55  # ignore low-confidence UI fragments before translation
 
 # ----- Translator -----
 # NLLB-200 distilled: one model, 200 languages, requires explicit lang codes.
@@ -65,6 +65,10 @@ RING_SAMPLE_PIXELS = 8     # width of the ring used to sample background color
 RENDER_MIN_FONT = 10       # smallest font size the renderer will use
 RENDER_MAX_FONT = 200      # safety cap
 RENDER_LINE_SPACING = 1.15 # multiplier on font size for multi-line
+RENDER_MIN_BOX_HEIGHT = 14 # skip tiny OCR rows that create unreadable overlays
+RENDER_MIN_BOX_WIDTH = 28
+RENDER_MIN_BOX_AREA = 360
+RENDER_MAX_TEXT_TO_BOX_RATIO = 0.9
 
 # ----- Fonts -----
 DEFAULT_FONT_NAME = "NotoSans-Regular.ttf"

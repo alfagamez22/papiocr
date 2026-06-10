@@ -215,6 +215,12 @@ def draw_translated(
         line_h = int(font_size * RENDER_LINE_SPACING)
         total_h = line_h * len(lines)
         widest = max((_measure(draw, ln, font)[0] for ln in lines), default=0)
+        if total_h > max_h or widest > max_w:
+            LOGGER.warning(
+                "Skipping render for text that does not fit OCR box: %r",
+                item.text[:80],
+            )
+            continue
 
         bg = _sample_box_color(image_bgr, item.box)
         fg = _contrast_color(bg)

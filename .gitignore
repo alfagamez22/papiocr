@@ -1,0 +1,5 @@
+# Keep this parent repo focused on papiocr only.
+*
+!/.gitignore
+!/papiocr/
+!/papiocr/**

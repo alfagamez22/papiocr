@@ -16,7 +16,7 @@ export default function Header() {
   return (
     <header className="flex items-center h-14 px-4 border-b border-[var(--border)] bg-[var(--bg)]">
       <Link href="/text" className="flex items-center gap-2 mr-8 no-underline">
-        <div className="w-7 h-7 rounded-[var(--radius-sm)] bg-[var(--accent)] flex items-center justify-center text-[var(--bg)] text-xs font-bold leading-none">
+        <div className="w-7 h-7 rounded-[var(--radius-sm)] bg-[var(--accent)] flex items-center justify-center text-white text-xs font-bold leading-none">
           p
         </div>
         <span className="text-sm font-medium text-[var(--text)]">papiocr</span>

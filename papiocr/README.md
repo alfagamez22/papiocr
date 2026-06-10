@@ -58,6 +58,19 @@ Both are redirected to the project by the `src/_env.py` shim (sets
 `det_model_dir` / `rec_model_dir` / `cls_model_dir` for PaddleOCR), so
 nothing lands in your system `~/.cache` or `~/.paddleocr`.
 
+## Desktop release build
+
+The current packaged target is Windows. From `front-end/`, run:
+
+```bash
+npm run build
+```
+
+That command builds the exported Next UI, compiles Electron, and writes the
+Windows release artifacts to `releases/windows/`. Placeholder folders also
+exist for future `releases/mac/`, `releases/android/`, and `releases/iphone/`
+targets. Generated installers and unpacked release files are ignored by Git.
+
 ## CLI options
 
 ```text
